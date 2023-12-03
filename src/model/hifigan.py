@@ -191,18 +191,29 @@ class MSDBlock(torch.nn.Module):
                 )
             ]
         )
+        self.out_conv = nn.utils.weight_norm(
+            nn.Conv1d(
+                channels[-1],
+                1,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            )
+        )
         self.activation = nn.LeakyReLU(relu_leakage)
 
     def forward(self, x: torch.Tensor):
-        fm = []
-        for l in self.convs:
-            x = l(x)
-            x = self.activation(x)
-            fm.append(x)
+        fms = []
+        for conv in self.convs:
+            x = self.activation(conv(x))
+            fms.append(x)
+
+        x = self.out_conv(x)
+        fms.append(x)
 
         x = torch.flatten(x, 1, -1)
 
-        return x, fm
+        return x, fms
 
 
 class MSD(torch.nn.Module):
@@ -239,12 +250,15 @@ class MSD(torch.nn.Module):
         gen_outputs = []
         target_fms = []
         gen_fms = []
+
         for i, block in enumerate(self.blocks):
             if i != 0:
                 target_wav = self.avg_pools[i - 1](target_wav)
                 generated_wav = self.avg_pools[i - 1](generated_wav)
+
             target_output, fm_target = block(target_wav)
             gen_output, fm_gen = block(generated_wav)
+
             target_outputs.append(target_output)
             gen_outputs.append(gen_output)
             target_fms.append(fm_target)
