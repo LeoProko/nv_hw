@@ -2,7 +2,7 @@ import torch
 
 
 def mel_loss(output_spec: torch.Tensor, target_spec: torch.Tensor):
-    output_spec.squeeze()
+    output_spec = output_spec.squeeze()
     if len(output_spec.shape) == 2:
         output_spec = output_spec.unsqueeze(0)
 
