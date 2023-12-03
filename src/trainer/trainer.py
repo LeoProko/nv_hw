@@ -63,12 +63,10 @@ class Trainer(BaseTrainer):
             "desc_loss",
             "mel_loss",
             "gen_loss",
-
             "gen_mpd_loss",
             "gen_msd_loss",
-            "desc_mpd_loss",
-            "desc_msd_loss",
-
+            "feat_mpd_loss",
+            "feat_msd_loss",
             "grad norm",
             *[m.name for m in self.metrics],
             writer=self.writer,
@@ -77,12 +75,10 @@ class Trainer(BaseTrainer):
             "desc_loss",
             "mel_loss",
             "gen_loss",
-
             "gen_mpd_loss",
             "gen_msd_loss",
-            "desc_mpd_loss",
-            "desc_msd_loss",
-
+            "feat_mpd_loss",
+            "feat_msd_loss",
             *[m.name for m in self.metrics],
             writer=self.writer,
         )
@@ -102,7 +98,14 @@ class Trainer(BaseTrainer):
     def _clip_grad_norm(self):
         if self.config["trainer"].get("grad_norm_clip", None) is not None:
             clip_grad_norm_(
-                self.model.parameters(), self.config["trainer"]["grad_norm_clip"]
+                self.model.generator.parameters(),
+                self.config["trainer"]["grad_norm_clip"],
+            )
+            clip_grad_norm_(
+                self.model.msd.parameters(), self.config["trainer"]["grad_norm_clip"]
+            )
+            clip_grad_norm_(
+                self.model.mpd.parameters(), self.config["trainer"]["grad_norm_clip"]
             )
 
     def _train_epoch(self, epoch):
@@ -173,7 +176,6 @@ class Trainer(BaseTrainer):
             self.desc_optimizer.zero_grad()
 
         generated_wav = self.model.generator(batch["spectrogram"])
-        generated_mel = self.wav2mel(generated_wav.detach().cpu())
 
         target_msd_outputs, gen_msd_outputs, _, _ = self.model.msd(
             batch["audio"], generated_wav
@@ -215,14 +217,14 @@ class Trainer(BaseTrainer):
         ) = self.model.mpd(batch["audio"], generated_wav)
 
         mel_loss = hifi_loss.mel_loss(generated_mel, batch["spectrogram"])
-        desc_msd_loss = hifi_loss.feature_loss(target_msd_fms, gen_msd_fms)
-        desc_mpd_loss = hifi_loss.feature_loss(target_mpd_fms, gen_mpd_fms)
+        feat_msd_loss = hifi_loss.feature_loss(target_msd_fms, gen_msd_fms)
+        feat_mpd_loss = hifi_loss.feature_loss(target_mpd_fms, gen_mpd_fms)
         gen_msd_loss = hifi_loss.generator_loss(gen_msd_outputs)
         gen_mpd_loss = hifi_loss.generator_loss(gen_mpd_outputs)
 
         if is_train:
             (
-                mel_loss + desc_msd_loss + desc_mpd_loss + gen_msd_loss + gen_mpd_loss
+                mel_loss + feat_msd_loss + feat_mpd_loss + gen_msd_loss + gen_mpd_loss
             ).backward()
             self._clip_grad_norm()
             self.gen_optimizer.step()
@@ -234,39 +236,29 @@ class Trainer(BaseTrainer):
 
         metrics.update(
             "mel_loss",
-            (
-                mel_loss
-            ).item(),
+            (mel_loss).item(),
         )
         metrics.update(
             "gen_loss",
             (
-                mel_loss + desc_msd_loss + desc_mpd_loss + gen_msd_loss + gen_mpd_loss
+                mel_loss + feat_msd_loss + feat_mpd_loss + gen_msd_loss + gen_mpd_loss
             ).item(),
         )
         metrics.update(
-            "desc_msd_loss",
-            (
-                desc_msd_loss
-            ).item(),
+            "feat_msd_loss",
+            feat_msd_loss.item(),
         )
         metrics.update(
-            "desc_mpd_loss",
-            (
-                desc_mpd_loss
-            ).item(),
+            "feat_mpd_loss",
+            feat_mpd_loss.item(),
         )
         metrics.update(
             "gen_msd_loss",
-            (
-                gen_msd_loss
-            ).item(),
+            (gen_msd_loss).item(),
         )
         metrics.update(
             "gen_mpd_loss",
-            (
-                gen_mpd_loss
-            ).item(),
+            (gen_mpd_loss).item(),
         )
 
         if is_train:

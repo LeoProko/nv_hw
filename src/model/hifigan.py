@@ -153,7 +153,7 @@ class Generator(nn.Module):
                     x = self.res_blocks[i * self.num_resnet_subblocks + j](x)
                 else:
                     x = x + self.res_blocks[i * self.num_resnet_subblocks + j](x)
-            
+
             x = x / self.num_resnet_subblocks
 
             x = x.transpose(-1, -2)
@@ -290,16 +290,15 @@ class MPDBlock(nn.Module):
                         padding=(2, 0),
                     )
                 ),
-                nn.utils.weight_norm(
-                    nn.Conv2d(
-                        channels[-1], 1, kernel_size=(3, 1), stride=1, padding=(1, 0)
-                    )
-                ),
             ]
         )
 
+        self.out_conv = nn.utils.weight_norm(
+            nn.Conv2d(channels[-1], 1, kernel_size=(3, 1), stride=1, padding=(1, 0))
+        )
+
     def forward(self, x: torch.Tensor):
-        fm = []
+        fms = []
 
         x = x.squeeze()
         if len(x.shape) == 1:
@@ -314,11 +313,14 @@ class MPDBlock(nn.Module):
 
         for conv in self.convs:
             x = self.activation(conv(x))
-            fm.append(x)
+            fms.append(x)
+
+        x = self.out_conv(x)
+        fms.append(x)
 
         x = torch.flatten(x, 1, -1)
 
-        return x, fm
+        return x, fms
 
 
 class MPD(torch.nn.Module):
