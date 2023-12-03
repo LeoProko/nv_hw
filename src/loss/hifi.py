@@ -8,7 +8,7 @@ def mel_loss(output_spec: torch.Tensor, target_spec: torch.Tensor):
 
     spec_len = min(output_spec.size(-1), target_spec.size(-1))
     output_spec = output_spec[:, :, :spec_len]
-    target_spec = target_spec[:, :, :spec_len]
+    target_spec = target_spec[:, :, :spec_len].to(output_spec.device)
 
     return torch.nn.functional.l1_loss(output_spec, target_spec) * 45
 
