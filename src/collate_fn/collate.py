@@ -12,8 +12,6 @@ def collate_fn(batch: list[dict[str, torch.Tensor]]):
     )
 
     return {
-        "audio": pad_sequence(
-            [item["audio"].squeeze() for item in batch], batch_first=True
-        ),
+        "audio": pad_sequence([item["audio"] for item in batch], batch_first=True),
         "spectrogram": specs,
     }

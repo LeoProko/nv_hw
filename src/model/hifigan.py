@@ -323,7 +323,7 @@ class MPDBlock(nn.Module):
             x = F.pad(x, (0, self.period - (audio_len % self.period)), "reflect")
             audio_len = x.size(-1)
 
-        x = x.view(batch_size, audio_len // self.period, self.period)
+        x = x.view(batch_size, 1, audio_len // self.period, self.period)
 
         for conv in self.convs:
             x = self.activation(conv(x))
