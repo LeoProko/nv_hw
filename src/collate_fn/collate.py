@@ -2,10 +2,6 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 from torch.nn.functional import pad
 
-from src.utils import make_mel
-
-mel_maker = make_mel.MelSpectrogram()
-
 
 def collate_fn(batch: list[dict[str, torch.Tensor]]):
     specs = [item["spectrogram"].squeeze() for item in batch]

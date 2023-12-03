@@ -54,7 +54,7 @@ class Trainer(BaseTrainer):
         self.log_step = 50
 
         self.valid_audios_spec = [
-            self.wav2mel(self.load_audio(f"data/valid/audio_{i}.wav")).to(device)
+            self.wav2mel(self.load_audio(f"data/valid/audio_{i}.wav"))
             for i in range(1, 3 + 1)
         ]
 
@@ -158,7 +158,7 @@ class Trainer(BaseTrainer):
             self.desc_optimizer.zero_grad()
 
         generated_wav = self.model.generator(batch["spectrogram"])
-        generated_mel = self.wav2mel(generated_wav)
+        generated_mel = self.wav2mel(generated_wav.detach().cpu())
 
         target_msd_outputs, gen_msd_outputs, _, _ = self.model.msd(
             batch["audio"], generated_wav
@@ -183,7 +183,7 @@ class Trainer(BaseTrainer):
             self.gen_optimizer.zero_grad()
 
         generated_wav = self.model.generator(batch["spectrogram"])
-        generated_mel = self.wav2mel(generated_wav)
+        generated_mel = self.wav2mel(generated_wav.detach().cpu())
 
         (
             target_msd_outputs,
