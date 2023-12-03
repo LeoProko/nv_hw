@@ -36,6 +36,7 @@ class Trainer(BaseTrainer):
     ):
         super().__init__(model, metrics, gen_optimizer, desc_optimizer, config, device)
         self.skip_oom = skip_oom
+        self.device = device
         self.config = config
         self.train_dataloader = dataloaders["train"]
         self.wav2mel = make_mel.MelSpectrogram()
@@ -279,7 +280,7 @@ class Trainer(BaseTrainer):
 
     def _log_predictions(self):
         for i in range(len(self.valid_audios_spec)):
-            gen_audio = self.model.generator(self.valid_audios_spec[i])
+            gen_audio = self.model.generator(self.valid_audios_spec[i].to(self.device))
             self.writer.add_audio(
                 f"valid-audio-{i}",
                 gen_audio.squeeze(),
