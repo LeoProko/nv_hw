@@ -149,7 +149,12 @@ class Generator(nn.Module):
             x = x.transpose(-1, -2)
 
             for j in range(self.num_resnet_subblocks):
-                x = x + self.res_blocks[i * self.num_resnet_subblocks + j](x)
+                if j == 0:
+                    x = self.res_blocks[i * self.num_resnet_subblocks + j](x)
+                else:
+                    x = x + self.res_blocks[i * self.num_resnet_subblocks + j](x)
+            
+            x = x / self.num_resnet_subblocks
 
             x = x.transpose(-1, -2)
 

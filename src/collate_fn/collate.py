@@ -16,8 +16,4 @@ def collate_fn(batch: list[dict[str, torch.Tensor]]):
             [item["audio"].squeeze() for item in batch], batch_first=True
         ),
         "spectrogram": specs,
-        "spectrogram_length": torch.tensor(
-            [item["spectrogram"].squeeze().size(-1) for item in batch],
-        ),
-        "duration": [item["duration"] for item in batch],
     }
