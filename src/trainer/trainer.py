@@ -150,9 +150,9 @@ class Trainer(BaseTrainer):
                 self.writer.add_scalar(
                     "learning rate", self.gen_lr_scheduler.get_last_lr()[0]
                 )
-                self.model.eval()
-                self._log_predictions()
-                self.model.train()
+                # self.model.eval()
+                # self._log_predictions()
+                # self.model.train()
                 # self._log_spectrogram(db["mel_output"].detach())
                 self._log_scalars(self.train_metrics)
                 # we don't want to reset train metrics at the start of every epoch

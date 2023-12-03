@@ -44,8 +44,8 @@ def feature_loss(target_fms: torch.Tensor, gen_fms: torch.Tensor):
 def discriminator_loss(target_outputs: torch.Tensor, gen_outputs: torch.Tensor):
     loss = 0
     for target_output, gen_output in zip(target_outputs, gen_outputs):
-        r_loss = torch.mean((target_output - 1) ** 2)
-        g_loss = torch.mean(gen_output**2)
-        loss += r_loss + g_loss
+        target_loss = torch.mean((target_output - 1) ** 2)
+        generator_loss = torch.mean(gen_output**2)
+        loss += target_loss + generator_loss
 
     return loss
