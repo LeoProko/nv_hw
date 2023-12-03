@@ -1,5 +1,5 @@
 {
-  "name": "train",
+  "name": "one_batch_test",
   "n_gpu": 1,
   "sr": 22050,
   "preprocessing": {
@@ -24,10 +24,10 @@
       "resblock_dilation_sizes": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
 
       "n_msd_blocks": 3,
-      "msd_channels": [1, 128, 128, 256, 512, 1024, 1024, 1024, 1],
-      "msd_kernel_sizes": [15, 41, 41, 41, 41, 41, 5, 3],
-      "msd_strides": [1, 2, 2, 4, 4, 1, 1, 1],
-      "msd_groups": [1, 4, 16, 16, 16, 16, 2, 1],
+      "msd_channels": [1, 128, 128, 256, 512, 1024, 1024, 1024],
+      "msd_kernel_sizes": [15, 41, 41, 41, 41, 41, 5],
+      "msd_strides": [1, 2, 2, 4, 4, 1, 1],
+      "msd_groups": [1, 4, 16, 16, 16, 16, 2],
 
       "mpd_kernel_size": 5,
       "mpd_stride": 3,
@@ -37,28 +37,28 @@
   },
   "data": {
     "train": {
-      "batch_size": 8,
+      "batch_size": 20,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LJspeechDataset",
           "args": {
             "part": "train",
-            "max_audio_len": 8192
+            "max_audio_len": 15000
           },
           "module": "src.datasets"
         }
       ]
     },
     "test": {
-      "batch_size": 8,
+      "batch_size": 20,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LJspeechDataset",
           "args": {
             "part": "test",
-            "max_audio_len": 8192
+            "max_audio_len": 15000
           },
           "module": "src.datasets"
         }
@@ -76,23 +76,23 @@
   "lr_scheduler": {
     "type": "OneCycleLR",
     "args": {
-      "steps_per_epoch": 100,
+      "steps_per_epoch": 1000,
       "epochs": 50,
       "anneal_strategy": "cos",
-      "max_lr": 1e-3,
+      "max_lr": 2e-4,
       "pct_start": 0.1
     }
   },
   "trainer": {
     "epochs": 50,
     "save_dir": "saved/",
-    "save_period": 5,
+    "save_period": 2,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 100,
+    "early_stop": 2000,
     "visualize": "wandb",
     "wandb_project": "dla-4-nv",
-    "len_epoch": 100,
+    "len_epoch": 1000,
     "grad_norm_clip": 10
   }
 }

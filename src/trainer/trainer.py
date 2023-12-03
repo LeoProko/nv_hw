@@ -52,7 +52,7 @@ class Trainer(BaseTrainer):
         }
         self.gen_lr_scheduler = gen_lr_scheduler
         self.desc_lr_scheduler = desc_lr_scheduler
-        self.log_step = 50
+        self.log_step = 100
 
         self.valid_audios_spec = [
             self.wav2mel(self.load_audio(f"data/valid/audio_{i}.wav"))
