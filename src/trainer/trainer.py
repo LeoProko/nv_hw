@@ -61,14 +61,28 @@ class Trainer(BaseTrainer):
 
         self.train_metrics = MetricTracker(
             "desc_loss",
+            "mel_loss",
             "gen_loss",
+
+            "gen_mpd_loss",
+            "gen_msd_loss",
+            "desc_mpd_loss",
+            "desc_msd_loss",
+
             "grad norm",
             *[m.name for m in self.metrics],
             writer=self.writer,
         )
         self.evaluation_metrics = MetricTracker(
             "desc_loss",
+            "mel_loss",
             "gen_loss",
+
+            "gen_mpd_loss",
+            "gen_msd_loss",
+            "desc_mpd_loss",
+            "desc_msd_loss",
+
             *[m.name for m in self.metrics],
             writer=self.writer,
         )
@@ -200,7 +214,7 @@ class Trainer(BaseTrainer):
             gen_mpd_fms,
         ) = self.model.mpd(batch["audio"], generated_wav)
 
-        spec_loss = hifi_loss.spec_loss(generated_mel, batch["spectrogram"])
+        mel_loss = hifi_loss.mel_loss(generated_mel, batch["spectrogram"])
         desc_msd_loss = hifi_loss.feature_loss(target_msd_fms, gen_msd_fms)
         desc_mpd_loss = hifi_loss.feature_loss(target_mpd_fms, gen_mpd_fms)
         gen_msd_loss = hifi_loss.generator_loss(gen_msd_outputs)
@@ -208,7 +222,7 @@ class Trainer(BaseTrainer):
 
         if is_train:
             (
-                spec_loss + desc_msd_loss + desc_mpd_loss + gen_msd_loss + gen_mpd_loss
+                mel_loss + desc_msd_loss + desc_mpd_loss + gen_msd_loss + gen_mpd_loss
             ).backward()
             self._clip_grad_norm()
             self.gen_optimizer.step()
@@ -219,9 +233,39 @@ class Trainer(BaseTrainer):
                 self.desc_lr_scheduler.step()
 
         metrics.update(
+            "mel_loss",
+            (
+                mel_loss
+            ).item(),
+        )
+        metrics.update(
             "gen_loss",
             (
-                spec_loss + desc_msd_loss + desc_mpd_loss + gen_msd_loss + gen_mpd_loss
+                mel_loss + desc_msd_loss + desc_mpd_loss + gen_msd_loss + gen_mpd_loss
+            ).item(),
+        )
+        metrics.update(
+            "desc_msd_loss",
+            (
+                desc_msd_loss
+            ).item(),
+        )
+        metrics.update(
+            "desc_mpd_loss",
+            (
+                desc_mpd_loss
+            ).item(),
+        )
+        metrics.update(
+            "gen_msd_loss",
+            (
+                gen_msd_loss
+            ).item(),
+        )
+        metrics.update(
+            "gen_mpd_loss",
+            (
+                gen_mpd_loss
             ).item(),
         )
 
