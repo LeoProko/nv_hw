@@ -37,7 +37,7 @@
   },
   "data": {
     "train": {
-      "batch_size": 2,
+      "batch_size": 10,
       "num_workers": 5,
       "datasets": [
         {
@@ -52,7 +52,7 @@
       ]
     },
     "test": {
-      "batch_size": 2,
+      "batch_size": 10,
       "num_workers": 5,
       "datasets": [
         {
@@ -72,16 +72,16 @@
     "args": {
       "lr": 2e-4,
       "betas": [0.8, 0.99],
-      "weight_decay": 0.1
+      "weight_decay": 0.01
     }
   },
   "lr_scheduler": {
     "type": "OneCycleLR",
     "args": {
-      "steps_per_epoch": 100,
+      "steps_per_epoch": 10,
       "epochs": 50,
       "anneal_strategy": "cos",
-      "max_lr": 1e-3,
+      "max_lr": 2e-4,
       "pct_start": 0.1
     }
   },
@@ -94,7 +94,7 @@
     "early_stop": 100,
     "visualize": "wandb",
     "wandb_project": "dla-4-nv",
-    "len_epoch": 100,
+    "len_epoch": 10,
     "grad_norm_clip": 10
   }
 }

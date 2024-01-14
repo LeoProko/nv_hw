@@ -70,7 +70,7 @@
     "args": {
       "lr": 2e-4,
       "betas": [0.8, 0.99],
-      "weight_decay": 0.1
+      "weight_decay": 0.01
     }
   },
   "lr_scheduler": {
