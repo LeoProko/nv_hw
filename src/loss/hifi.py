@@ -10,15 +10,15 @@ def mel_loss(output_spec: torch.Tensor, target_spec: torch.Tensor):
     output_spec = output_spec[:, :, :spec_len]
     target_spec = target_spec[:, :, :spec_len].to(output_spec.device)
 
-    return torch.nn.functional.l1_loss(output_spec, target_spec)
+    return torch.nn.functional.l1_loss(output_spec, target_spec) * 45
 
 
 def generator_loss(dgses: torch.Tensor):
     loss = 0
     for dgs in dgses:
-        loss += torch.mean((dgs - 1) ** 2)
+        loss = loss + torch.mean((dgs - 1) ** 2)
 
-    return loss * 0.1
+    return loss
 
 
 def feature_loss(target_fms: torch.Tensor, gen_fms: torch.Tensor):
@@ -37,9 +37,9 @@ def feature_loss(target_fms: torch.Tensor, gen_fms: torch.Tensor):
                 tfm = tfm[:, :, :size]
                 gfm = gfm[:, :, :size]
 
-            loss += torch.mean(torch.abs(tfm - gfm))
+            loss = loss + torch.mean(torch.abs(tfm - gfm))
 
-    return loss * 0.2
+    return loss * 2
 
 
 def discriminator_loss(target_outputs: torch.Tensor, gen_outputs: torch.Tensor):
@@ -47,6 +47,6 @@ def discriminator_loss(target_outputs: torch.Tensor, gen_outputs: torch.Tensor):
     for target_output, gen_output in zip(target_outputs, gen_outputs):
         target_loss = torch.mean((target_output - 1) ** 2)
         generator_loss = torch.mean(gen_output**2)
-        loss += target_loss + generator_loss
+        loss = loss + target_loss + generator_loss
 
     return loss
