@@ -7,9 +7,7 @@ from functools import reduce, partial
 from operator import getitem
 from pathlib import Path
 
-from src import text_encoder as text_encoder_module
 from src.logger import setup_logging
-from src.text_encoder import CTCCharTextEncoder
 from src.utils import read_json, write_json, ROOT_PATH
 
 
@@ -29,7 +27,6 @@ class ConfigParser:
         # load config file and apply modification
         self._config = _update_config(config, modification)
         self.resume = resume
-        self._text_encoder = None
 
         # set save_dir where trained model and log will be saved.
         save_dir = Path(self.config["trainer"]["save_dir"])
