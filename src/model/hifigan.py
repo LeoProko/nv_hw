@@ -429,9 +429,9 @@ class HiFiGAN(nn.Module):
         self.mpd.train()
 
     def eval(self):
-        self.generator.train()
-        self.msd.train()
-        self.mpd.train()
+        self.generator.eval()
+        self.msd.eval()
+        self.mpd.eval()
 
     def forward(self):
         raise NotImplementedError
